@@ -51,3 +51,21 @@ Working log for the "LLM use" section of the README. Claude Code (Opus) as pair 
   vulnerability (ties to the Task 4 PR); (3) protect `/dev/fills` with JWT + ownership now instead
   of only documenting the gap.
 - **Changed afterwards:** _(my own wording edits after the mock interview questions)_
+
+## Task 4 – Code review
+- **Written by me.** Claude did not draft any of the review text.
+- **Claude's role:** feedback on two drafts, limited to blind spots and clarity: auth guard missing
+  as a prerequisite for the IDOR fix, `...p` over-exposure, missing isolation test, log injection
+  via `accountId`; flagged that I had downgraded the logging issue, lost the "fix first", mixed
+  404/403 against my own SECURITY.md, and duplicated the analysis.
+- **Changed afterwards:** logging back to blocker, explicit "fix first", 404 with reason, sign of
+  `qty` turned into a question to the author, single PR comment in English.
+
+## Task 5 – Reflection
+- **Written by me.** Claude did not draft any of the three paragraphs.
+- **Claude's role:** feedback on one draft: my first "most proud" decision (composite FKs /
+  denormalised broker_id) was logged here as Claude-generated, so I switched to a decision that
+  was mine (minimal WS event + refetch); "second day" listed three things instead of one; the
+  handoff only listed what not to change; "prove" overstated test coverage; fills are scoped by
+  broker + a trader-resolved account, not by trader directly.
+- **Changed afterwards:** all of the above.
