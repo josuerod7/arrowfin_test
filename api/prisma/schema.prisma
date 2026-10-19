@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tenant root. Every tenant-owned row below carries broker_id.
+model Broker {
+  id       String    @id
+  name     String
+  type     String
+  traders  Trader[]
+  accounts Account[]
+  fills    Fill[]
+
+  @@map("brokers")
+}
+
+// Deliberately no PII columns: name, email, phone, dob, ssn_last4, address, notes and
+// audit_notes are not needed for the snapshot, so they are never loaded (see SECURITY.md).
+model Trader {
+  id        String    @id
+  brokerId  String    @map("broker_id")
+  kycStatus String    @map("kyc_status")
+  broker    Broker    @relation(fields: [brokerId], references: [id])
+  accounts  Account[]
+
+  // Target of the composite FK from accounts: guarantees account.broker_id = trader.broker_id.
+  @@unique([id, brokerId])
+  @@index([brokerId])
+  @@map("traders")
+}
+
+model Account {
+  id          String  @id
+  brokerId    String  @map("broker_id")
+  traderId    String  @map("trader_id")
+  accountType String  @map("account_type")
+  balance     Decimal @db.Decimal(14, 2)
+  status      String
+  broker      Broker  @relation(fields: [brokerId], references: [id])
+  trader      Trader  @relation(fields: [traderId, brokerId], references: [id, brokerId])
+  fills       Fill[]
+
+  @@unique([id, brokerId])
+  // Snapshot entry point: "accounts of this trader in this tenant".
+  @@index([brokerId, traderId])
+  @@map("accounts")
+}
+
+// Reference data, shared by all tenants (exchange contract specs are public).
+model Instrument {
+  symbol        String  @id
+  pointValueUsd Decimal @map("point_value_usd") @db.Decimal(14, 2)
+
+  @@map("instruments")
+}
+
+model MarketPrice {
+  symbol    String   @id
+  markPrice Decimal  @map("mark_price") @db.Decimal(18, 6)
+  asOf      DateTime @map("as_of")
+
+  @@map("market_prices")
+}
+
+model Fill {
+  id            String   @id
+  brokerId      String   @map("broker_id")
+  accountId     String   @map("account_id")
+  symbol        String   @map("instrument_symbol")
+  side          String
+  quantity      Int
+  price         Decimal  @db.Decimal(18, 6)
+  filledAt      DateTime @map("filled_at")
+  orderId       String   @map("order_id")
+  commissionUsd Decimal  @map("commission_usd") @db.Decimal(10, 2)
+  broker        Broker   @relation(fields: [brokerId], references: [id])
+  account       Account  @relation(fields: [accountId, brokerId], references: [id, brokerId])
+
+  // Matches the snapshot query exactly: equality on broker_id + account_id,
+  // then a range/order on filled_at. Tenant column first so every lookup is tenant-prefixed.
+  @@index([brokerId, accountId, filledAt])
+  @@map("fills")
+}

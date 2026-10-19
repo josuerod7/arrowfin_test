@@ -1,0 +1,10 @@
+{
+  "name": "arrowfin-snapshot",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "db:up": "docker compose up -d",
+    "api": "pnpm --filter api dev",
+    "web": "pnpm --filter web dev"
+  }
+}

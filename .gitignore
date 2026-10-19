@@ -1,0 +1,13 @@
+node_modules
+dist
+.next
+*.tsbuildinfo
+.env
+.env.local
+
+# Assessment brief: not ours to publish.
+*.docx
+
+# Seed data is provided by ArrowFin and traders.csv contains (fabricated) PII. Treated as
+# production data: never committed. Copy the provided dataset/ folder here before `pnpm seed`.
+dataset/
