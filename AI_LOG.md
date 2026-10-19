@@ -77,3 +77,14 @@ Working log for the "LLM use" section of the README. Claude Code (Opus) as pair 
   generic for a lead role). It also offered an English draft; I discarded it and wrote my own.
 - **Changed afterwards:** Next.js 5 → 4, multi-tenant 5 → 4, added Laravel (4), made the
   Laravel → NestJS mapping concrete, rewrote answers 4 and 5.
+
+## SECURITY.md §6 – Known gaps
+- **Written by me.** Answers to four interview-style questions Claude asked about the draft
+  (WS rooms, forgotten WHERE, closed accounts / long-lived sockets, balance inferable from risk).
+- **Claude's role:** checked each answer against the code; flagged that my first version put RLS
+  before the scoped Prisma client (contradicting Task 5 and §2), described closed-account REST
+  access as a bug while the README presents it as intentional, and used a WS example that the
+  minimal fill event already rules out.
+- **Changed afterwards:** kept the scoped Prisma client first and RLS after; closed-account REST
+  access stated as deliberate, WS revocation as the gap; WS example turned into a point in favour.
+  Appended unedited as §6, with a note explaining why it sits at the end.

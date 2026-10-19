@@ -126,3 +126,32 @@ Nest's default filter logs raw error messages and Prisma errors can include quer
 If PII has to be stored: **column-level encryption with KMS envelope keys** for SSN/DOB/address, and
 `notes`/`audit_notes` in a separate store with its own access policy, never in the trading DB.
 Dependency and secret scanning in CI, and `Decimal` end-to-end for money instead of `number`.
+
+## 6. Known gaps — in my own words
+
+*Why this section is at the end:* §1–§5 started as an LLM-assisted draft (see README → LLM use).
+After reading it against the code, I answered the four questions I would expect a reviewer to ask
+about it. I kept those answers separate and unedited so it is clear which parts are my own words.
+Where they overlap with §1–§5, this section is my position.
+
+### 1. WebSocket rooms
+
+In the current client, the WebSocket handshake sends only the token; it does not send an `accountId`. The gateway supports an optional `accountId` for future use, but that value is only a selector within the authenticated trader’s accounts. It is passed to `findAccount(brokerId, traderId, accountId)`, so a trader who supplies another broker’s account ID gets no matching account and the connection is rejected with `not_found`. The server builds the room name only after resolving an account from the verified principal. The client never sends a room name or subscribes to an arbitrary room.
+
+### 2. A forgotten `WHERE` clause
+
+Today, raw SQL is not technically prevented from bypassing tenant filtering. The port signature, code review, and integration tests reduce that risk, but they are not a complete guarantee. If someone wrote an urgent raw query without `broker_id`, that would be a real security gap.
+
+My next step would be a tenant-scoped Prisma client. It would make the safe path the default for normal application access and reject unscoped Prisma queries against tenant-owned models. It would not cover `$queryRaw`, so I would ban raw SQL on tenant tables through linting and code-review policy, except through a reviewed helper that requires tenant scope. PostgreSQL RLS is the stronger database-level backstop I would add after that, once the application has a reliable per-request transaction and tenant context. I did not start there because this was a time-boxed assessment and I wanted to make the current application-level model explicit, testable, and easy to discuss.
+
+### 3. Long-lived tokens and closed accounts
+
+The current REST behavior is deliberate: the default snapshot request selects an active account, while an explicit request for a closed account can still return its historical snapshot together with its `closed` status. That supports a trader viewing prior positions and P&L without implying that the account remains tradable. If the trader has no active account and makes the default request, the endpoint returns `404`.
+
+The WebSocket behavior needs improvement. A socket authenticated while the account was active remains connected after Compliance closes it, because authentication happens only at the handshake. Even if the account should no longer receive new fills, I would not rely on that assumption. I would publish an account-status-change event, immediately disconnect sockets for that account, and prevent new socket connections for inactive accounts. I would also disconnect sockets at token expiry or periodically revalidate the token and account status. This preserves read-only REST access to historical data while removing live access promptly.
+
+### 4. Balance inferred from risk data
+
+That is a valid criticism. When the risk score is below 100, `balance = notional / score × 100`, so omitting `balance` from the response does not actually protect it. I accepted that in this narrow widget because the response is limited to the authenticated owner of the account, who is already entitled to see their own financial information. It is not intended as a confidentiality boundary; it only avoids showing the balance as a separate field.
+
+It becomes a real problem if the same snapshot is reused for a role that should not see balances, such as support staff, an analytics consumer, or a shared dashboard. In production, I would make risk data role-specific: the account owner may receive the detailed values, while other consumers receive only a risk band or a high-risk flag. The WebSocket already follows this minimization principle: its fill event contains no balance, risk score, or notional, and the client retrieves financial calculations through the authenticated REST endpoint.
