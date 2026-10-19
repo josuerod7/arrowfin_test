@@ -7,27 +7,28 @@ in [LLM use](#llm-use) and the working log in [AI_LOG.md](AI_LOG.md).
 
 ## Background
 
-<!-- TODO(me): written by me, not by the LLM. -->
-
 **Stack ratings** (1 never used · 2 tutorial · 3 shipped · 4 comfortable in production · 5 could teach it)
 
-- TypeScript:
-- Next.js:
-- NestJS:
-- Prisma:
-- PostgreSQL:
-- WebSockets:
-- Tailwind:
-- JWT/auth:
-- Multi-tenant data isolation:
+- TypeScript: 4
+- Next.js: 4
+- NestJS: 2
+- Prisma: 2
+- PostgreSQL: 5
+- WebSockets: 2
+- Tailwind: 4
+- JWT/auth: 4
+- Multi-tenant data isolation: 4
+- PHP: 5
+- Laravel: 4
+- React: 4
 
 **Five short answers**
 
-1. Strongest part of the stack:
-2. Steepest learning curve:
-3. Core strength outside the stack:
-4. Work I most want to do day-to-day:
-5. What I most want to avoid:
+1. Strongest areas of the stack: PostgreSQL is my strongest area, followed by TypeScript and JWT-based authentication.
+2. Biggest learning curve: NestJS. I understand its core patterns, but I have not yet delivered a production application with it.
+3. Core strength outside this stack: Laravel. Many of its concepts translate well to NestJS: Laravel’s service container maps to dependency injection, middleware has close parallels with Nest middleware and guards, and Eloquent maps naturally to an ORM layer such as Prisma. For me, NestJS is primarily a new framework syntax around architectural concepts I already use.
+4. Work I want to do most day-to-day: I enjoy work that is challenging, practical, and continuously teaches me something new. I prefer staying close to the problem and the implementation, while contributing meaningful value within a collaborative, well-integrated team.
+5. Work I want to avoid: I try to avoid repetitive work with little opportunity for learning or improvement, as well as disconnected team environments with low collaboration. I do my best work in teams that are positive, focused, and accountable.
 
 ## LLM use
 
@@ -44,10 +45,9 @@ the dataset and the brief are not committed.
 **Written by me, LLM only gave feedback on clarity:** Background, the code review, the reflection.
 
 **What I would change if I had written it by hand:**
-<!-- TODO(me): reword in my own voice -->
-- Debounce the refetch or carry `last_fill_id` from the start, instead of one REST call per fill.
-- A shared types package for `SnapshotView` instead of duplicating it in `web/lib/api.ts`.
-- Start from a tenant-scoped Prisma client on day one rather than relying on the port signature and review.
+* I would debounce snapshot refreshes, or include a `last_fill_id` from the beginning, instead of making one REST request for every fill event.
+* I would create a shared types package for `SnapshotView` rather than maintaining a duplicate interface in `web/lib/api.ts`.
+* I would introduce a tenant-scoped Prisma client from day one, instead of relying primarily on repository method signatures and code review to enforce tenant filtering.
 
 ## Running it
 

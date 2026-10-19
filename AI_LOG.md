@@ -69,3 +69,11 @@ Working log for the "LLM use" section of the README. Claude Code (Opus) as pair 
   handoff only listed what not to change; "prove" overstated test coverage; fills are scoped by
   broker + a trader-resolved account, not by trader directly.
 - **Changed afterwards:** all of the above.
+
+## Background
+- **Written by me.** Ratings and the five answers are mine.
+- **Claude's role:** pointed out inconsistencies (Next.js 5 but not listed as strongest,
+  multi-tenant 5 vs. what the repo shows, Laravel transfer claim without specifics, answers 4–5
+  generic for a lead role). It also offered an English draft; I discarded it and wrote my own.
+- **Changed afterwards:** Next.js 5 → 4, multi-tenant 5 → 4, added Laravel (4), made the
+  Laravel → NestJS mapping concrete, rewrote answers 4 and 5.
